@@ -51,7 +51,7 @@ SecurityType = "L" | "H"
 	"char"			{ return symbol(sym.CHAR_TYPE);	}
 	"seq"			{ return symbol(sym.SEQ_TYPE);	}
 	"top"			{ return symbol(sym.ANY_TYPE);	}
-	{SecurityType}	{ return symbol(sym.SEC_TYPE);	}
+	{SecurityType}	        { return symbol(sym.SEC_TYPE);	}
 
 }
 
@@ -70,7 +70,7 @@ SecurityType = "L" | "H"
 	"alias"			{ return symbol(sym.ALIAS);		}
 	"read"			{ return symbol(sym.READ);		}
 	"print"			{ return symbol(sym.PRINT);		}
-	"return"		{ return symbol(sym.RETURN);	}
+	"return"		{ return symbol(sym.RETURN);	        }
 	"main"			{ return symbol(sym.MAIN);		}
 
 }
@@ -78,15 +78,15 @@ SecurityType = "L" | "H"
 <YYINITIAL> {
 
 	// Symbols
-	"("				{ return symbol(sym.LPAREN);	}
-	")"				{ return symbol(sym.RPAREN);	}
-	"["				{ return symbol(sym.LBRACK);	}
-	"]"				{ return symbol(sym.RBRACK);	}
-	"{"				{ return symbol(sym.LBRACE);	}
-	"}"				{ return symbol(sym.RBRACE);	}
+	"("				{ return symbol(sym.LPAREN);		}
+	")"				{ return symbol(sym.RPAREN);		}
+	"["				{ return symbol(sym.LBRACK);		}
+	"]"				{ return symbol(sym.RBRACK);		}
+	"{"				{ return symbol(sym.LBRACE);		}
+	"}"				{ return symbol(sym.RBRACE);		}
 	":"				{ return symbol(sym.COLON);		}
-	";"				{ return symbol(sym.SEMICOLON);	}
-	">"				{ return symbol(sym.GREATERTHAN);}
+	";"				{ return symbol(sym.SEMICOLON);		}
+	">"				{ return symbol(sym.GREATERTHAN);	}
 	","				{ return symbol(sym.COMMA);		}
 	"."				{ return symbol(sym.DOT);		}
 
@@ -95,56 +95,56 @@ SecurityType = "L" | "H"
 <YYINITIAL> {
 
 	// Operators
-	"&&"			{ return symbol(sym.AND);		}
-	"||"			{ return symbol(sym.OR);		}
-  "!"				{ return symbol(sym.NOT);		}
+	"&&"				{ return symbol(sym.AND);		}
+	"||"				{ return symbol(sym.OR);		}
+  "!"					{ return symbol(sym.NOT);		}
 	"+"				{ return symbol(sym.PLUS);		}
 	"-"				{ return symbol(sym.MINUS);		}
 	"*"				{ return symbol(sym.MULTI);		}
-	"/"				{ return symbol(sym.DIVIDE);	}
+	"/"				{ return symbol(sym.DIVIDE);		}
 	"^"				{ return symbol(sym.POWER);		}
-	"<"				{ return symbol(sym.LESSTHAN);	}
-	"<="			{ return symbol(sym.LESSTHANEQUAL);	}
+	"<"				{ return symbol(sym.LESSTHAN);		}
+	"<="				{ return symbol(sym.LESSTHANEQUAL);	}
 	"="				{ return symbol(sym.EQUAL);		}
-	"!="			{ return symbol(sym.NOTEQUAL);	}
-	":="			{ return symbol(sym.ASSIGN);	}
-	"in"			{ return symbol(sym.IN);		}
-	"::"			{ return symbol(sym.CONCAT);	}
+	"!="				{ return symbol(sym.NOTEQUAL);		}
+	":="				{ return symbol(sym.ASSIGN);		}
+	"in"				{ return symbol(sym.IN);		}
+	"::"				{ return symbol(sym.CONCAT);		}
 
 }
 
 <YYINITIAL> {
 
 	// String Literals
-	"null"			{ return symbol(sym.NULL);		}
-	"T"				{ return symbol(sym.TRUE);		}
-	"F"				{ return symbol(sym.FALSE);		}
-	{Identifier}	{ return symbol(sym.ID, yytext()); }
-	{Float}			{ return symbol(sym.FLOAT, new Double(yytext())); }
-	{Rational}		{ return symbol(sym.RAT, yytext());	}
-	{Integer}		{ return symbol(sym.INT, new Integer(yytext()));	}
-	{Character}		{ return symbol(sym.CHAR, new Character(yytext().charAt(1))); }
-	\"				{ string.setLength(0); yybegin(STRING); }
+	"null"				{ return symbol(sym.NULL);					}
+	"T"				{ return symbol(sym.TRUE);					}
+	"F"				{ return symbol(sym.FALSE);					}
+	{Identifier}			{ return symbol(sym.ID, yytext()); 				}
+	{Float}				{ return symbol(sym.FLOAT, new Double(yytext())); }
+	{Rational}			{ return symbol(sym.RAT, yytext());				}
+	{Integer}			{ return symbol(sym.INT, new Integer(yytext()));		}
+	{Character}			{ return symbol(sym.CHAR, new Character(yytext().charAt(1))); 	}
+	\"				{ string.setLength(0); yybegin(STRING); 			}
 
 }
 
 <YYINITIAL> {
 
-	{Comment}		    { /* do nothing */				      }
+  {Comment}		{ /* do nothing */		}
   {Whitespace}  	{ /* do nothing */              }
 
 }
 
 <STRING>	{
-	\"				    { yybegin(YYINITIAL);
+	\"				    	{ yybegin(YYINITIAL);
 					        return symbol(sym.STRING,
-					        string.toString());			  }
-	[^\n\r\"\\]+	{ string.append( yytext() );}
-	\\t				    { string.append('\t');			}
-	\\n				    { string.append('\n');			}
-	\\r				    { string.append('\r');			}
-	\\\"			    { string.append('\"');			}
-	\\				    { string.append('\\');			}
+					        string.toString());			}
+	[^\n\r\"\\]+				{ string.append( yytext() );}
+	\\t				    	{ string.append('\t');			}
+	\\n				    	{ string.append('\n');			}
+	\\r				    	{ string.append('\r');			}
+	\\\"			   	        { string.append('\"');			}
+	\\				        { string.append('\\');			}
 }
 
 
