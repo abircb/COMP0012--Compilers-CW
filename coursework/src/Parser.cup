@@ -1,0 +1,177 @@
+import java_cup.runtime.*;
+
+parser code {:
+
+	public boolean syntaxErrors = false;
+
+	public void syntax_error (Symbol current_token) {
+		report_error (
+			"Syntax error at line " + (current_token.left+1) + ", column "
+			+ current_token.right + ". ", null );
+		syntaxErrors = true;
+	}
+
+:};
+
+terminal BOOL_TYPE, INT_TYPE, RAT_TYPE, FLOAT_TYPE, CHAR_TYPE, SEQ_TYPE, ANY_TYPE, SEC_TYPE;
+terminal LOOP, POOL, IF, THEN, ELSE, ENDIF, BREAK, FDEF, TDEF, ALIAS, READ, PRINT, RETURN, MAIN;
+terminal NOT, AND, OR, PLUS, MINUS, MULTI, DIVIDE, POWER, LESSTHAN, LESSTHANEQUAL, EQUAL, NOTEQUAL, ASSIGN, IN, CONCAT, LPAREN, RPAREN, LBRACK, RBRACK, LBRACE, RBRACE, COLON, SEMICOLON, GREATERTHAN, COMMA, DOT;
+terminal NULL, TRUE, FALSE;
+
+terminal Character CHAR;
+terminal Integer INT;
+terminal String RAT;
+terminal Double FLOAT;
+terminal String STRING;
+terminal String ID;
+
+nonterminal program, main, statements, statement, loop_statements, loop_statement, type_id, seq_type_id, declarations, declaration, declaration_list, declaration_list_item, expressions, expression, slice_expression, function, ids;
+
+precedence nonassoc ELSE;
+precedence left AND, OR;
+precedence left PLUS, MINUS, MULTI, DIVIDE, POWER;
+precedence left EQUAL, NOTEQUAL, LESSTHAN, LESSTHANEQUAL;
+precedence left LPAREN, RPAREN, LBRACK, RBRACK;
+precedence left IN;
+precedence right CONCAT, NOT;
+
+start with program;
+
+program 			::=	main:m declarations:d
+					|	declarations:d1 main:m declarations:d2
+					|	declarations:d main:m
+					|	main:m
+					;
+
+main				::= MAIN LBRACE function:f RBRACE SEMICOLON;
+
+function			::= declarations:d statements:s
+					|	statements:s
+					;
+
+declarations		::=	declaration:d
+					|	declarations:d1 declaration:d2
+					;
+
+declaration			::= ID:i COLON type_id:t SEMICOLON
+					|	ID:i COLON type_id:t ASSIGN expressions:e SEMICOLON
+					|	ALIAS type_id:t ID:i SEMICOLON
+					|	TDEF ID:i LBRACE declaration_list:dt RBRACE SEMICOLON
+					|	TDEF ID:i LBRACE RBRACE SEMICOLON
+					|	FDEF ID:i LPAREN declaration_list:df RPAREN LBRACE function:f RBRACE SEMICOLON
+					|	FDEF ID:i LPAREN declaration_list:df RPAREN LBRACE function:f RBRACE COLON type_id:t SEMICOLON
+					|	FDEF ID:i LPAREN RPAREN LBRACE function:f RBRACE SEMICOLON
+					|	FDEF ID:i LPAREN RPAREN LBRACE function:f RBRACE COLON type_id:t SEMICOLON
+					|	FDEF ID:i LPAREN declaration_list:df RPAREN LBRACE RBRACE SEMICOLON
+					|	FDEF ID:i LPAREN RPAREN LBRACE RBRACE SEMICOLON
+					;
+
+type_id				::= CHAR_TYPE SEC_TYPE
+          					|	INT_TYPE SEC_TYPE
+          					|	RAT_TYPE SEC_TYPE
+          					|	FLOAT_TYPE SEC_TYPE
+          					|	BOOL_TYPE SEC_TYPE
+          					| 	ID:i
+          					|	SEQ_TYPE LESSTHAN seq_type_id:t	GREATERTHAN
+          					;
+
+seq_type_id		::= CHAR_TYPE SEC_TYPE
+          					|	INT_TYPE SEC_TYPE
+          					|	RAT_TYPE SEC_TYPE
+          					|	FLOAT_TYPE SEC_TYPE
+          					|	BOOL_TYPE SEC_TYPE
+          					| 	ID:i
+          					|	SEQ_TYPE LESSTHAN seq_type_id:t	GREATERTHAN
+          					|	ANY_TYPE SEC_TYPE
+          					;
+
+declaration_list	::=	declaration_list_item:d
+					|	declaration_list:d1 COMMA declaration_list_item:d2
+					;
+
+declaration_list_item 	::=	ID:i COLON type_id:t;
+
+statements 			::= statement:s
+					|	statements:s1 statement:s2
+					;
+
+statement			  ::=	ids:i ASSIGN expressions:es SEMICOLON
+					|	READ ids:i SEMICOLON
+					|	PRINT expression:e SEMICOLON
+					|	ID:fi LPAREN expressions:es RPAREN SEMICOLON
+					|	ID:fi LPAREN RPAREN SEMICOLON
+					|	IF LPAREN expression:e RPAREN THEN statements:ss ENDIF
+					|	IF LPAREN expression:e RPAREN THEN statements:ss1 ELSE statements:ss2 ENDIF
+					|	LOOP loop_statements:ls POOL
+					|	RETURN expression:e SEMICOLON
+					|	RETURN SEMICOLON
+					;
+
+loop_statements		::= loop_statement:l
+					|	loop_statements:l1 loop_statement:l2
+					;
+
+loop_statement		::=	ids:i ASSIGN expressions:es SEMICOLON
+					|	READ ids:i SEMICOLON
+					|	PRINT expression:e SEMICOLON
+					|	ID:fi LPAREN expressions:es RPAREN SEMICOLON
+					|	ID:fi LPAREN RPAREN SEMICOLON
+					|	IF LPAREN expression:e RPAREN THEN loop_statements:ss ENDIF
+					|	IF LPAREN expression:e RPAREN THEN loop_statements:ss1 ELSE loop_statements:ss2 ENDIF
+					|	LOOP loop_statements:ls POOL
+					|	RETURN expression:e SEMICOLON
+					|	RETURN SEMICOLON
+					|	BREAK SEMICOLON
+					|	BREAK expression:e SEMICOLON
+					;
+
+expressions			::= expression:e
+					|	expressions:e1 COMMA expression:e2
+					;
+
+expression ::= NULL
+					|	TRUE
+					| 	FALSE
+					|	INT:i
+					|	RAT:r
+					|	FLOAT:f
+					|	CHAR:c
+					|	STRING:s
+					|	ids:is
+					| 	ids:seqi LBRACK expression:e RBRACK
+					|	ids:seqi LBRACK slice_expression RBRACK
+					| 	ids:seqi1 LBRACK expression:e RBRACK DOT ids:seqi2
+					|	ids:seqi1 LBRACK slice_expression RBRACK DOT ids:seqi2
+					|	ID:fi LPAREN expressions:es RPAREN
+					|	ID:fi LPAREN RPAREN
+					|	ID:fi LPAREN expressions:es RPAREN DOT ids:seqi
+					|	ID:fi LPAREN RPAREN DOT ids:seqi
+					|	LPAREN expression:e RPAREN
+					|	NOT expression:e
+					|	MINUS expression:e
+					|	expression:e1 AND expression:e2
+					|	expression:e1 OR expression:e2
+					|	expression:e1 PLUS expression:e2
+					|	expression:e1 MINUS expression:e2
+					|	expression:e1 MULTI expression:e2
+					| 	expression:e1 DIVIDE expression:e2
+					|	expression:e1 POWER expression:e2
+					|	expression:e1 LESSTHAN expression:e2
+					|	expression:e1 LESSTHANEQUAL expression:e2
+					|	expression:e1 EQUAL expression:e2
+					|	expression:e1 NOTEQUAL expression:e2
+					|	expression:e1 IN expression:e2
+					|	expression:e1 CONCAT expression:e2
+					|	LBRACK expressions:es RBRACK
+					|	LBRACK RBRACK
+					;
+
+ids					::= ID:i
+					|	ids:is DOT ID:i
+					;
+
+slice_expression	::= expression:e1 COLON expression:e2
+					|	expression:e1 COLON
+					|	COLON expression:e2
+					| 	COLON
+					;
