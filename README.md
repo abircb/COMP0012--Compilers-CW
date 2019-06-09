@@ -5,14 +5,14 @@ The goal of this coursework was to build a lexer (lexical analyser) and parser f
 
 ## Lexer and Parser
 
-The lexer:
+The lexer (in src/Lexer.lex)
 
 <ul>
   <li>Uses JFlex to automatically generate a scanner for the Ž<sub>sec</sub> language.</li>
   <li>Reports the line and the column (offset into the line) where an error, usually unexpected input, first occurred.</li>
 </ul>
 
-The parser:
+The parser (in src/Parser.cup)
 
 <ul>
   <li>Uses CUP(Construction of Useful Parsers) to automatically produce a parser for the Ž<sub>sec</sub> language.</li>
